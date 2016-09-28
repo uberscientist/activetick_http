@@ -12,4 +12,9 @@ print(tabulate(intc_hourly, headers='keys', tablefmt='pipe'))
 df = at.tickData('TWTR', trades=True, quotes=True)
 print(tabulate(df.head(n=10), headers='keys', tablefmt='pipe'))
 
-df = tabulate(at.optionChain('USO'))
+from tabulate import tabulate
+
+fields = ['LastPrice', 'BidPrice', 'AskPrice']
+at = ActiveTick()
+df = at.quoteData(('SPY', 'TLT', 'TVIX'), fields)
+print(tabulate(df[fields], headers='keys', tablefmt='pipe'))
