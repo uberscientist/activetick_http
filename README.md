@@ -10,13 +10,11 @@ fields = ['LastPrice', 'BidPrice', 'AskPrice']
 df = at.quoteData(('SPY', 'TLT', 'TVIX'), fields)
 print(df[fields])
 ```
-
-|      |   symbol_status |   LastPrice_field_id |   LastPrice_status |   LastPrice_datatype |   LastPrice |   BidPrice_field_id |   BidPrice_status |   BidPrice_datatype |   BidPrice |   AskPrice_field_id |   AskPrice_status |   AskPrice_datatype |   AskPrice |
-|:-----|----------------:|---------------------:|-------------------:|---------------------:|------------:|--------------------:|------------------:|--------------------:|-----------:|--------------------:|------------------:|--------------------:|-----------:|
-| SPY  |               1 |                    5 |                  1 |                    7 |      215.57 |                   6 |                 1 |                   7 |     215.39 |                   7 |                 1 |                   7 |     215.47 |
-| TLT  |               1 |                    5 |                  1 |                    7 |      138.7  |                   6 |                 1 |                   7 |     137.8  |                   7 |                 1 |                   7 |     138.92 |
-| TVIX |               1 |                    5 |                  1 |                    7 |       17.94 |                   6 |                 1 |                   7 |      18.15 |                   7 |                 1 |                   7 |      18.16 |
-
+|      |   LastPrice |   BidPrice |   AskPrice |
+|:-----|------------:|-----------:|-----------:|
+| SPY  |      216.64 |     216.6  |     216.62 |
+| TLT  |      138.4  |     138.25 |     138.44 |
+| TVIX |       17.49 |      17.48 |      17.51 |
 
 ```python
 # Open a quote stream
