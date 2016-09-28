@@ -1,10 +1,19 @@
 activetick_http
 =================
 
+How to use:
+--------------
 ```python
 from activetick_http import ActiveTick
 at = ActiveTick('127.0.0.1', 5000)
+```
 
+quoteData(*symbols, fields*)
+-----------
+Returns instantaneous quote information (fields) on symbols
+check `quote_fields.py` for availiable options.
+
+```python
 # Get quoteData
 fields = ['LastPrice', 'BidPrice', 'AskPrice']
 df = at.quoteData(('SPY', 'TLT', 'TVIX'), fields)
@@ -16,8 +25,11 @@ print(df[fields])
 | TLT  |      138.4  |     138.25 |     138.44 |
 | TVIX |       17.49 |      17.48 |      17.51 |
 
+quoteStream(*symbols*)
+------------
+Returns a live updated quote stream iterator
+
 ```python
-# Open a quote stream
 stream = at.quoteStream(('NUGT','DUST'))
 for tick in stream:
     print(tick)
@@ -30,8 +42,11 @@ for tick in stream:
 |:---|:---------|--------:|--------:|--------:|--------:|--------:|:----------|-------:|--------:|:---------------------------|
 | T  | NUGT     |       3 |       0 |      14 |       0 |       0 | P         |  19.86 |     101 | 2016-09-28 14:16:33.518000 |               |
 
+barData
+----------
+Returns OHLCV data for singular symbol
+
 ```python
-# Returns OHLCV data for singular symbol
 intc_hourly = at.barData('INTC', historyType='I', beginTime=datetime(datetime.now().year, 9, 27))
 print(intc_hourly)
 ```
@@ -50,9 +65,11 @@ print(intc_hourly)
 | 2016-09-28 10:00:00 | 37.4   | 37.46  | 37.27  | 37.31   |      1.59818e+06 |
 | 2016-09-28 11:00:00 | 37.31  | 37.32  | 37.22  | 37.2263 | 488536           |
 
-```python
-# Returns historical tick level quote and trade data for symbol
+tickData(*symbol, trades=False, quotes=True*)
+--------
+Returns historical tick level quote and trade data for a symbol
 
+```python
 df = at.tickData('TWTR', trades=True, quotes=True)
 print(df)
 ```
@@ -70,12 +87,15 @@ print(df)
 | 2016-09-28 12:40:57.501000 |  22.91 | N      |     32 |  22.9 | N      |     14 |      0 |     nan |     nan |     nan |     nan | nan      | nan     |     nan | Q      |
 | 2016-09-28 12:40:57.501000 | nan    | nan    |    nan | nan   | nan    |    nan |    nan |       0 |       0 |       0 |       0 |  22.9    | P       |     100 | T      |
 
-```python
-# Returns the symbols making up the optionchain for the underlying
+optionChain
+----------
+Returns the symbols making up the optionchain for the underlying
 
+```python
 df = at.optionChain('SPXW')
 print(df)
 ```
+
 |-|-|
 |-----:|:-----------------------------|
 |    0 | OPTION:SPXW--161230P02215000 |
