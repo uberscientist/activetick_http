@@ -84,10 +84,10 @@ class ActiveTick:
             quoteFields = quote_definitions[quoteFields]
 
         url = "http://{host}:{port}/quoteData?symbol={symbols}&field={quoteFields}".format(
-            host = self.host,
-            port = self.port,
-            symbols = self._format_symbols(symbols),
-            quoteFields = quoteFields
+            host=self.host,
+            port=self.port,
+            symbols=self._format_symbols(symbols),
+            quoteFields=quoteFields
         )
 
         # GET request is made and the CSV is read into a Pandas DataFrame
@@ -107,7 +107,7 @@ class ActiveTick:
         :return:
         returns lazy iterator see requests iter_lines() that can be looped over to access streaming data
         """
-        #TODO Start, pause, stop quote stream
+        # TODO: Start, pause, stop quote stream
 
         def __tickParse(tick):
             tick = tick.decode('utf-8')
@@ -191,8 +191,8 @@ class ActiveTick:
             historyType = history_lookup[historyType],
             intradayMintuesAttr = __getIntradayMinutesAttr(),
             beginTime = datetime.strftime(beginTime, format=self._date_fmt),
-            endTime = datetime.strftime(endTime, format=self._date_fmt)
-        )
+            endTime = datetime.strftime(endTime, format=self._date_fmt))
+
         dtypes = {'datetime': object,
                   'open': np.float32,
                   'high': np.float32,
@@ -201,7 +201,7 @@ class ActiveTick:
                   'volume': np.uint32}
 
         df = pd.read_csv(url, header=None, names=['datetime', 'open', 'high', 'low', 'close', 'volume'],
-                    index_col='datetime', parse_dates=['datetime'], dtype=dtypes)
+                         index_col='datetime', parse_dates=['datetime'], dtype=dtypes)
         return df
 
     def tickData(self, symbol, trades=False, quotes=True,
@@ -266,19 +266,19 @@ class ActiveTick:
         trades_df = df[df[0] == 'T'].copy()
         trades_df.columns = t_names
 
-        trades_df.loc[:,'last'] = trades_df.loc[:,'last'].astype(np.float32)
-        trades_df.loc[:,'lastz'] = trades_df.loc[:,'lastz'].astype(np.uint32)
-        trades_df.loc[:,['cond1','cond2','cond3','cond4']] = trades_df.loc[:,['cond1',
-                                                                              'cond2',
-                                                                              'cond3',
-                                                                              'cond4']].astype(np.uint8)
+        trades_df.loc[:, 'last'] = trades_df.loc[:, 'last'].astype(np.float32)
+        trades_df.loc[:, 'lastz'] = trades_df.loc[:, 'lastz'].astype(np.uint32)
+        trades_df.loc[:, ['cond1','cond2','cond3','cond4']] = trades_df.loc[:, ['cond1',
+                                                                                'cond2',
+                                                                                'cond3',
+                                                                                'cond4']].astype(np.uint8)
 
         quotes_df = df[df[0] == 'Q'].copy()
         quotes_df.columns = q_names
 
-        quotes_df.loc[:,['bid', 'ask']] = quotes_df.loc[:,['bid', 'ask']].astype(np.float32)
-        quotes_df.loc[:,['bidz', 'askz']] = quotes_df.loc[:,['bidz', 'askz']].astype(np.uint32)
-        quotes_df.loc[:,'cond'] = quotes_df.loc[:,'cond'].astype(np.uint8)
+        quotes_df.loc[:, ['bid', 'ask']] = quotes_df.loc[:, ['bid', 'ask']].astype(np.float32)
+        quotes_df.loc[:, ['bidz', 'askz']] = quotes_df.loc[:, ['bidz', 'askz']].astype(np.uint32)
+        quotes_df.loc[:, 'cond'] = quotes_df.loc[:, 'cond'].astype(np.uint8)
 
         if trades and quotes:
             df = trades_df.append(quotes_df).sort_index(axis=0)
@@ -306,13 +306,5 @@ class ActiveTick:
         return df
 
 if __name__ == '__main__':
-
+    print('ActiveTick Python Module, attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.')
     # TODO Write/Run tests
-    # import pytest
-    from tabulate import tabulate
-    at = ActiveTick()
-
-    #df = at.tickData('OPTION:SPXW---1628I2160', trades=True, quotes=True)
-
-    df = at.tickData('TWTR', trades=True, quotes=True)
-    print(tabulate(df.head(n=10), headers='keys', tablefmt='pipe'))

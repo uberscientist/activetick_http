@@ -9,7 +9,7 @@ for tick in stream:
 intc_hourly = at.barData('INTC', historyType='I', beginTime=datetime(datetime.now().year, 9, 27))
 print(tabulate(intc_hourly, headers='keys', tablefmt='pipe'))
 
-
-df = at.tickData('OPTION:SPXW--161230C02166000', trades=True, quotes=False)
+df = at.tickData('TWTR', trades=True, quotes=True)
+print(tabulate(df.head(n=10), headers='keys', tablefmt='pipe'))
 
 df = tabulate(at.optionChain('USO'))
