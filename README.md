@@ -3,10 +3,13 @@ activetick_http
 
 How to use:
 --------------
+Run the HTTP proxy supplied by ActiveTick and instantiate ActiveTick, the defaults are shown:
 ```python
 from activetick_http import ActiveTick
 at = ActiveTick('127.0.0.1', 5000)
 ```
+
+From the ActiveTick instance we have access to all the functionality provided by the HTTP proxy with the following methods:
 
 quoteData(*symbols, fields*)
 -----------
@@ -14,7 +17,6 @@ Returns instantaneous quote information (fields) on symbols
 check `quote_fields.py` for availiable options.
 
 ```python
-# Get quoteData
 fields = ['LastPrice', 'BidPrice', 'AskPrice']
 df = at.quoteData(('SPY', 'TLT', 'TVIX'), fields)
 print(df[fields])
@@ -42,7 +44,7 @@ for tick in stream:
 |:---|:---------|--------:|--------:|--------:|--------:|--------:|:----------|-------:|--------:|:---------------------------|
 | T  | NUGT     |       3 |       0 |      14 |       0 |       0 | P         |  19.86 |     101 | 2016-09-28 14:16:33.518000 |               |
 
-barData
+barData(*symbol, historyType='I', intradayMinutes=60, beginTime=datetime, endTime=datetime*)
 ----------
 Returns OHLCV data for singular symbol
 
@@ -65,7 +67,7 @@ print(intc_hourly)
 | 2016-09-28 10:00:00 | 37.4   | 37.46  | 37.27  | 37.31   |      1.59818e+06 |
 | 2016-09-28 11:00:00 | 37.31  | 37.32  | 37.22  | 37.2263 | 488536           |
 
-tickData(*symbol, trades=False, quotes=True*)
+tickData(*symbol, trades=False, quotes=True, beginTime=datetime, endTime=dateime*)
 --------
 Returns historical tick level quote and trade data for a symbol
 
@@ -87,7 +89,7 @@ print(df)
 | 2016-09-28 12:40:57.501000 |  22.91 | N      |     32 |  22.9 | N      |     14 |      0 |     nan |     nan |     nan |     nan | nan      | nan     |     nan | Q      |
 | 2016-09-28 12:40:57.501000 | nan    | nan    |    nan | nan   | nan    |    nan |    nan |       0 |       0 |       0 |       0 |  22.9    | P       |     100 | T      |
 
-optionChain
+optionChain(*symbol*)
 ----------
 Returns the symbols making up the optionchain for the underlying
 
