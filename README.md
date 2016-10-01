@@ -1,17 +1,26 @@
 activetick_http
 =================
 Python module that connects to ActiveTick HTTP proxy and supplies Pandas DataFrames.
-Requires requests for the quoteStream, other requires in requirements.txt.
+Requires requests for the quoteStream, and redis for caching.
 
 How to use:
 --------------
-Run the HTTP proxy supplied by ActiveTick and instantiate ActiveTick, the defaults are shown:
+Run the
+[HTTP proxy supplied by ActiveTick](http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx)
+ and instantiate ActiveTick, the defaults are shown with a Redis cache enabled:
+
 ```python
 from activetick_http import ActiveTick
-at = ActiveTick('127.0.0.1', 5000)
+
+# Import the StrictRedis client to enable local persistent caching
+from redis import StrictRedis
+
+# ActiveTick initialized with Redis caching enabled (requires Redis)
+at = ActiveTick(host='127.0.0.1', port=5000, cache=StrictRedis(host='127.0.0.1'))
 ```
 
-From the ActiveTick instance we have access to all the functionality provided by the HTTP proxy with the following methods:
+From the ActiveTick instance we have access to all the functionality provided by the HTTP proxy with the following
+ methods:
 
 quoteData(*symbols, fields*)
 -----------
