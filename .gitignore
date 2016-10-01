@@ -1,2 +1,4 @@
 .idea
+.cache
+__pycache__
 activetick_http/__pycache__
