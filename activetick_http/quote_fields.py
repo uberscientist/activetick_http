@@ -43,7 +43,7 @@ DEFINITIONS = ["Symbol",
                "FundamentalEquityPrimaryExchange"]
 
 DEF_DTYPES = {
-    "Symbol" : object,
+    "Symbol": object,
     "OpenPrice": np.float32,
     "PreviousClosePrice": np.float32,
     "ClosePrice": np.float32,
