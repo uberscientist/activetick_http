@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from requests import Session
+from redis import StrictRedis
+
 
 # TODO look into read_csv use_cols option for speedups
 
@@ -14,6 +16,7 @@ class ActiveTick:
         self.host = host
         self.port = port
         self.r = Session()
+        self.cache = StrictRedis(host='127.0.0.1')
 
         self._date_fmt = '%Y%m%d%H%M%S'
 
@@ -183,15 +186,31 @@ class ActiveTick:
                 attr_str = 'intradayMinutes={intradayMinutes}&'.format(intradayMinutes=str(intradayMinutes))
             return attr_str
 
+        beginTime_s = datetime.strftime(beginTime, format=self._date_fmt)
+        endTime_s = datetime.strftime(endTime, format=self._date_fmt)
+
+        cache_key = "AT:BARDATA:{symbol}:{historyType}:{intradayMinutes}:{beginTime}:{endTime}"
+        cache_key = cache_key.format(
+            symbol=symbol,
+            historyType=history_lookup[historyType],
+            intradayMinutes=intradayMinutes,
+            beginTime=beginTime_s,
+            endTime=endTime_s)
+
+        # If the data is cached
+        if self.cache.exists(cache_key):
+            return pd.read_msgpack(self.cache.get(cache_key))
+
         url = 'http://{host}:{port}/barData?symbol={symbol}&historyType={historyType}' \
-              '&{intradayMintuesAttr}beginTime={beginTime}&endTime={endTime}'.format(
-            host = self.host,
-            port = self.port,
-            symbol = symbol,
-            historyType = history_lookup[historyType],
-            intradayMintuesAttr = __getIntradayMinutesAttr(),
-            beginTime = datetime.strftime(beginTime, format=self._date_fmt),
-            endTime = datetime.strftime(endTime, format=self._date_fmt))
+              '&{intradayMintuesAttr}beginTime={beginTime}&endTime={endTime}'
+        url = url.format(
+            host=self.host,
+            port=self.port,
+            symbol=symbol,
+            historyType=history_lookup[historyType],
+            intradayMintuesAttr=__getIntradayMinutesAttr(),
+            beginTime=beginTime_s,
+            endTime=endTime_s)
 
         dtypes = {'datetime': object,
                   'open': np.float32,
@@ -202,6 +221,9 @@ class ActiveTick:
 
         df = pd.read_csv(url, header=None, names=['datetime', 'open', 'high', 'low', 'close', 'volume'],
                          index_col='datetime', parse_dates=['datetime'], dtype=dtypes)
+
+        # Cache the data
+        self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
         return df
 
     def tickData(self, symbol, trades=False, quotes=True,
@@ -221,20 +243,10 @@ class ActiveTick:
         :return:
         """
 
-        url = 'http://{host}:{port}/tickData?symbol={symbol}&trades={trades}' \
-              '&quotes={quotes}&beginTime={beginTime}&endTime={endTime}'
-
-        url = url.format(
-            host=self.host,
-            port=self.port,
-            symbol=symbol,
-            trades=1,
-            quotes=1,
-            beginTime=datetime.strftime(beginTime, format=self._date_fmt),
-            endTime=datetime.strftime(endTime, format=self._date_fmt)
-        )
-
+        tick_date_fmt = '%Y%m%d%H%M%S%f'
+        date_parser = self._date_parser(tick_date_fmt)
         q_names = ['type',
+                   'datetime',
                    'bid',
                    'ask',
                    'bidz',
@@ -242,8 +254,8 @@ class ActiveTick:
                    'bidx',
                    'askx',
                    'cond']
-
         t_names = ['type',
+                   'datetime',
                    'last',
                    'lastz',
                    'lastx',
@@ -252,42 +264,88 @@ class ActiveTick:
                    'cond3',
                    'cond4']
 
-        tick_date_fmt = '%Y%m%d%H%M%S%f'
-        date_parser = self._date_parser(tick_date_fmt)
+        def __get_trades(df):
+            trades_df = df[df[0] == 'T'].copy()
+            trades_df.columns = t_names
+            trades_df.loc[:, 'last'] = trades_df.loc[:, 'last'].astype(np.float32)
+            trades_df.loc[:, 'lastz'] = trades_df.loc[:, 'lastz'].astype(np.uint32)
+            trades_df.loc[:, ['cond1', 'cond2', 'cond3', 'cond4']] = trades_df.loc[:, ['cond1',
+                                                                                       'cond2',
+                                                                                       'cond3',
+                                                                                       'cond4']].astype(np.uint8)
+            return trades_df
 
-        df = pd.read_csv(url, header=None,
-                         engine='c',
-                         index_col=1,
-                         parse_dates=[1],
-                         date_parser=date_parser)
+        def __get_quotes(df):
+            quotes_df = df[df[0] == 'Q'].copy()
+            quotes_df.columns = q_names
+            quotes_df.loc[:, ['bid', 'ask']] = quotes_df.loc[:, ['bid', 'ask']].astype(np.float32)
+            quotes_df.loc[:, ['bidz', 'askz']] = quotes_df.loc[:, ['bidz', 'askz']].astype(np.uint32)
+            quotes_df.loc[:, 'cond'] = quotes_df.loc[:, 'cond'].astype(np.uint8)
+            return quotes_df
 
-        df.index.name = 'datetime'
+        def __at_request(url, names):
+            if(names):
+                date_col = 'datetime'
+            else:
+                date_col = 1
+                del q_names[1]
+                del t_names[1]
+            df = pd.read_csv(url, header=None,
+                             engine='c',
+                             index_col=date_col,
+                             parse_dates=[date_col],
+                             names=names,
+                             date_parser=date_parser)
+            return df
 
-        trades_df = df[df[0] == 'T'].copy()
-        trades_df.columns = t_names
+        if not trades and not quotes:
+            return pd.DataFrame()
 
-        trades_df.loc[:, 'last'] = trades_df.loc[:, 'last'].astype(np.float32)
-        trades_df.loc[:, 'lastz'] = trades_df.loc[:, 'lastz'].astype(np.uint32)
-        trades_df.loc[:, ['cond1','cond2','cond3','cond4']] = trades_df.loc[:, ['cond1',
-                                                                                'cond2',
-                                                                                'cond3',
-                                                                                'cond4']].astype(np.uint8)
+        beginTime_s = datetime.strftime(beginTime, format=self._date_fmt)
+        endTime_s = datetime.strftime(endTime, format=self._date_fmt)
 
-        quotes_df = df[df[0] == 'Q'].copy()
-        quotes_df.columns = q_names
+        cache_key = 'AT:TICKDATA:{symbol}:{trades}:{quotes}:{beginTime}:{endTime}'
+        cache_key = cache_key.format(
+            symbol=symbol,
+            trades=int(trades),
+            quotes=int(quotes),
+            beginTime=beginTime_s,
+            endTime=endTime_s
+        )
 
-        quotes_df.loc[:, ['bid', 'ask']] = quotes_df.loc[:, ['bid', 'ask']].astype(np.float32)
-        quotes_df.loc[:, ['bidz', 'askz']] = quotes_df.loc[:, ['bidz', 'askz']].astype(np.uint32)
-        quotes_df.loc[:, 'cond'] = quotes_df.loc[:, 'cond'].astype(np.uint8)
+        # Return cached data
+        if self.cache.exists(cache_key):
+            return pd.read_msgpack(self.cache.get(cache_key))
 
-        if trades and quotes:
-            df = trades_df.append(quotes_df).sort_index(axis=0)
-        elif trades and not quotes:
-            df = trades_df
-        elif quotes and not trades:
-            df = quotes_df
+        # Retrieve data not found in cache
         else:
-            df = pd.DataFrame()
+            url = 'http://{host}:{port}/tickData?symbol={symbol}&trades={trades}' \
+                  '&quotes={quotes}&beginTime={beginTime}&endTime={endTime}'
+
+            url = url.format(
+                host=self.host,
+                port=self.port,
+                symbol=symbol,
+                trades=int(trades),
+                quotes=int(quotes),
+                beginTime=beginTime_s,
+                endTime=endTime_s
+            )
+            print(url)
+
+            # Quote column names
+            if quotes and not trades:
+                df = __at_request(url, q_names)
+
+            # Trade columns names
+            if trades and not quotes:
+                df = __at_request(url, t_names)
+
+            if trades and quotes:
+                df = __at_request(url, None)
+                df = __get_trades(df).append(__get_quotes(df)).sort_index(axis=0)
+
+        self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
         return df
 
     def optionChain(self, symbol):
@@ -307,4 +365,9 @@ class ActiveTick:
 
 if __name__ == '__main__':
     print('ActiveTick Python Module, attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.')
+    at = ActiveTick()
+    begin = datetime(year=2016, month=9, day=28, hour=9, minute=30)
+    end = begin + timedelta(minutes=1)
+    df = at.tickData('SPY', trades=False, quotes=False, beginTime=begin, endTime=end)
+    print(df)
     # TODO Write/Run tests
