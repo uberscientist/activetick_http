@@ -1,4 +1,4 @@
-from quote_fields import quote_definitions, quote_dtypes
+from . quote_fields import quote_definitions, quote_dtypes
 from io import StringIO
 import pandas as pd
 import numpy as np
@@ -6,8 +6,8 @@ from datetime import datetime, timedelta
 from requests import Session
 from redis import StrictRedis
 
-
 # TODO look into read_csv use_cols option for speedups
+# TODO Fix doc comment formatting on methods
 
 class ActiveTick:
     def __init__(self, host='127.0.0.1', port=5000):
