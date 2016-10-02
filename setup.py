@@ -6,7 +6,7 @@ try:
 except ImportError:
     from distutils.core import setup
 
-with open(path.join(path.dirname(__file__), 'README.md')) as f:
+with open(path.join(path.dirname(__file__), 'README.rst')) as f:
     long_description = f.read()
 
 setup(
@@ -16,11 +16,14 @@ setup(
     long_description=long_description,
     url='https://github.com/uberscientist/activetick_http',
     author='Christopher Toledo',
-    maintainer_email='chris@mindsforge.com',
+    author_email='chris@mindsforge.com',
     keywords=['activetick', 'finance', 'quant', 'pandas'],
     license='MIT',
     packages=['activetick_http'],
-    tests_require=['pytest'],
+    tests_require=['pytest',
+                   'tabulate',
+                   'redis'
+    ],
     package_dir={'activetick_http': 'activetick_http'},
     install_requires=[
         'pandas',
