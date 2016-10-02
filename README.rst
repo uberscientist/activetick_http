@@ -10,7 +10,7 @@ tests run using ``pytest``
 How to use:
 ===========
 Run the
-[HTTP proxy supplied by ActiveTick](http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx)\
+HTTP proxy supplied by ActiveTick_
 and instantiate ActiveTick, the defaults are shown with a Redis cache enabled::
 
     from activetick_http import ActiveTick
@@ -24,6 +24,8 @@ and instantiate ActiveTick, the defaults are shown with a Redis cache enabled::
 From the ActiveTick instance we have access to all the functionality provided by the HTTP proxy with the following \
 methods:
 
+.. _ActiveTick: http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx
+
 =========
 quoteData
 =========
@@ -34,7 +36,7 @@ check `quote_fields.py` for availiable options.::
 
     fields = ['LastPrice', 'BidPrice', 'AskPrice']
     df = at.quoteData(('SPY', 'TLT', 'TVIX'), fields)
-    print(df[fields])
+    print(df[fields].head())
 
 +------+-------------+------------+------------+
 |      |   LastPrice |   BidPrice |   AskPrice |
@@ -67,7 +69,7 @@ barData
 Returns OHLCV data for singular symbol::
 
     df = at.barData('INTC', historyType='I', beginTime=datetime(datetime.now().year, 9, 27))
-    print(df)
+    print(df.head())
 
 +---------------------+--------+--------+-------+---------+-------------+
 |                     |   open |   high |   low |   close |      volume |
@@ -89,8 +91,8 @@ tickData
 ``tickData(*symbol, trades=False, quotes=True, beginTime=datetime, endTime=dateime*)``
 Returns historical tick level quote and trade data for a symbol::
 
-    df = at.tickData('TWTR', trades=True, quotes=True)
-    print(df)
+    df = at.tickData('SPY', trades=True, quotes=False)
+    print(df.head())
 
 +----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
 |                            | type   |    bid |   ask | bidz   |   askz |   bidx |   askx |   cond |
@@ -113,8 +115,8 @@ optionChain
 
 Returns the symbols making up the optionchain for the underlying::
 
-    df = at.optionChain('SPXW')
-    print(df)
+    df = at.optionChain('SPY')
+    print(df.head)
 
 +----+------------------------------+
 |    |                              |

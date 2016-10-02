@@ -361,7 +361,7 @@ class ActiveTick:
         df = pd.read_csv(url)
         return df
 
-__version__ = '0.1'
+__version__ = '0.11'
 if __name__ == '__main__':
     print('ActiveTick Python Module, attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.\n'
           'http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx',
