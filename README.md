@@ -3,6 +3,8 @@ activetick_http
 Python module that connects to ActiveTick HTTP proxy and supplies Pandas DataFrames.
 Requires requests for the quoteStream, and redis for caching.
 
+tests written using `pytest`
+
 How to use:
 --------------
 Run the

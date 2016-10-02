@@ -228,7 +228,7 @@ class ActiveTick:
     def tickData(self, symbol, trades=False, quotes=True,
                  beginTime=datetime.now() - timedelta(minutes=15), endTime=datetime.now()):
         """
-        Gets tick level data in between a time range, limited to returnedin 100,000 quotes/trades at a time
+        Gets tick level data in between a time range, limited to returning 100,000 quotes/trades at a time
         :param symbol:
         String, ticker for symbol in ActiveTick format
         :param trades:
@@ -361,6 +361,7 @@ class ActiveTick:
         df = pd.read_csv(url)
         return df
 
+__version__ = '0.1'
 if __name__ == '__main__':
     print('ActiveTick Python Module, attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.\n'
           'http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx',
