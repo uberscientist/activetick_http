@@ -4,6 +4,8 @@ activetick_http
 Python module that connects to ActiveTick HTTP proxy and supplies Pandas DataFrames.
 Requires requests for the quoteStream, and redis for caching.
 
+Currently unstable, may end up changing the methods from camelCase to pep8 snake_case.
+
 tests run using ``pytest``
 
 ===========
@@ -32,7 +34,7 @@ quoteData
 ``quoteData(symbols, fields)``
 
 Returns instantaneous quote information (fields) on symbols
-check `quote_fields.py` for availiable options.::
+check `quote_fields.py` for available options.::
 
     fields = ['LastPrice', 'BidPrice', 'AskPrice']
     df = at.quoteData(('SPY', 'TLT', 'TVIX'), fields)
@@ -64,7 +66,7 @@ TODO: example df
 =======
 barData
 =======
-``barData(*symbol, historyType='I', intradayMinutes=60, beginTime=datetime, endTime=datetime*)``
+``barData(symbol, historyType='I', intradayMinutes=60, beginTime=datetime, endTime=datetime)``
 
 Returns OHLCV data for singular symbol::
 
@@ -88,25 +90,25 @@ Returns OHLCV data for singular symbol::
 ========
 tickData
 ========
-``tickData(*symbol, trades=False, quotes=True, beginTime=datetime, endTime=dateime*)``
+``tickData(symbol, trades=False, quotes=True, beginTime=datetime, endTime=dateime)``
 Returns historical tick level quote and trade data for a symbol::
 
-    df = at.tickData('SPY', trades=True, quotes=False)
+    df = at.tickData('GDX', trades=True, quotes=False)
     print(df.head())
 
-+----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
-|                            | type   |    bid |   ask | bidz   |   askz |   bidx |   askx |   cond |
-+============================+========+========+=======+========+========+========+========+========+
-| 2016-09-28 09:30:00.003000 | T      | 215.83 |   100 | Z      |      0 |      0 |     14 |      0 |
-+----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
-| 2016-09-28 09:30:00.003000 | T      | 215.83 |   309 | Z      |      0 |      0 |     14 |      0 |
-+----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
-| 2016-09-28 09:30:00.008000 | T      | 215.83 |   200 | Z      |      0 |      0 |      0 |      0 |
-+----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
-| 2016-09-28 09:30:00.008000 | T      | 215.83 |   300 | K      |      0 |      0 |      0 |      0 |
-+----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
-| 2016-09-28 09:30:00.008000 | T      | 215.83 |   200 | Z      |      0 |      0 |      0 |      0 |
-+----------------------------+--------+--------+-------+--------+--------+--------+--------+--------+
++----------------------------+--------+--------+---------+---------+---------+---------+---------+---------+
+|                            | type   |   last |   lastz | lastx   |   cond1 |   cond2 |   cond3 |   cond4 |
++============================+========+========+=========+=========+=========+=========+=========+=========+
+| 2016-09-28 09:30:00.091000 | T      |  26.27 |   52073 | P       |       0 |       0 |      17 |       0 |
++----------------------------+--------+--------+---------+---------+---------+---------+---------+---------+
+| 2016-09-28 09:30:00.091000 | T      |  26.27 |   52073 | P       |      16 |       0 |       0 |       0 |
++----------------------------+--------+--------+---------+---------+---------+---------+---------+---------+
+| 2016-09-28 09:30:00.182000 | T      |  26.25 |     211 | T       |       0 |      12 |       0 |       0 |
++----------------------------+--------+--------+---------+---------+---------+---------+---------+---------+
+| 2016-09-28 09:30:00.184000 | T      |  26.25 |      89 | T       |      37 |      12 |      14 |       0 |
++----------------------------+--------+--------+---------+---------+---------+---------+---------+---------+
+| 2016-09-28 09:30:00.185000 | T      |  26.25 |     500 | T       |       0 |      12 |      14 |       0 |
++----------------------------+--------+--------+---------+---------+---------+---------+---------+---------+
 
 ===========
 optionChain
@@ -116,7 +118,7 @@ optionChain
 Returns the symbols making up the optionchain for the underlying::
 
     df = at.optionChain('SPY')
-    print(df.head)
+    print(df.head())
 
 +----+------------------------------+
 |    |                              |

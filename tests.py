@@ -25,7 +25,7 @@ class TestActiveTick():
         return True
 
     def test_tickData(self):
-        df = at.tickData('SPY', trades=True, quotes=False, beginTime=datetime(2016, 9, 28, 9, 30),
+        df = at.tickData('GDX', trades=True, quotes=False, beginTime=datetime(2016, 9, 28, 9, 30),
                          endTime=datetime(2016, 9, 28, 9, 31)).head()
 
         print('\ntickData:\n', tabulate(df, headers='keys', tablefmt='grid'))
