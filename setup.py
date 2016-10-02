@@ -19,7 +19,7 @@ setup(
     maintainer_email='chris@mindsforge.com',
     keywords=['activetick', 'finance', 'quant', 'pandas'],
     license='MIT',
-    packages=['activetick_http', 'quote_fields'],
+    packages=['activetick_http'],
     tests_require=['pytest'],
     package_dir={'activetick_http': 'activetick_http'},
     install_requires=[
