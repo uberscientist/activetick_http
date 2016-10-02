@@ -1,17 +1,17 @@
-================
+===============
 activetick_http
-================
+===============
 Python module that connects to ActiveTick HTTP proxy and supplies Pandas DataFrames.
 Requires requests for the quoteStream, and redis for caching.
 
-tests run using `pytest`
+tests run using ``pytest``
 
-==============
+===========
 How to use:
-==============
+===========
 Run the
-[HTTP proxy supplied by ActiveTick](http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx)
- and instantiate ActiveTick, the defaults are shown with a Redis cache enabled::
+[HTTP proxy supplied by ActiveTick](http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx)\
+and instantiate ActiveTick, the defaults are shown with a Redis cache enabled::
 
     from activetick_http import ActiveTick
 
@@ -21,12 +21,14 @@ Run the
     # ActiveTick initialized with Redis caching enabled (requires Redis)
     at = ActiveTick(host='127.0.0.1', port=5000, cache=StrictRedis(host='127.0.0.1'))
 
-From the ActiveTick instance we have access to all the functionality provided by the HTTP proxy with the following
- methods:
+From the ActiveTick instance we have access to all the functionality provided by the HTTP proxy with the following \
+methods:
 
-============================
-quoteData(*symbols, fields*)
-============================
+=========
+quoteData
+=========
+``quoteData(symbols, fields)``
+
 Returns instantaneous quote information (fields) on symbols
 check `quote_fields.py` for availiable options.::
 
@@ -42,9 +44,11 @@ TLT        137.51      137.02      137.5
 TVIX        18.15       18.2        18.25
 ====  ===========  ==========  ==========
 
-======================
-quoteStream(*symbols*)
-======================
+===========
+quoteStream
+===========
+``quoteStream(symbols)``
+
 Returns a live updated quote stream iterator::
 
     stream = at.quoteStream(('NUGT','DUST'))
@@ -53,9 +57,11 @@ Returns a live updated quote stream iterator::
 
 TODO: example df
 
-============================================================================================
-barData(*symbol, historyType='I', intradayMinutes=60, beginTime=datetime, endTime=datetime*)
-============================================================================================
+=======
+barData
+=======
+``barData(*symbol, historyType='I', intradayMinutes=60, beginTime=datetime, endTime=datetime*)``
+
 Returns OHLCV data for singular symbol::
 
     df = at.barData('INTC', historyType='I', beginTime=datetime(datetime.now().year, 9, 27))
@@ -71,9 +77,10 @@ Returns OHLCV data for singular symbol::
 2016-09-28 13:00:00  37.275   37.39  37.22   37.37   1.23249e+06
 ===================  ======  ======  =====  =======  ===========
 
-===================================================================================
-tickData(*symbol, trades=False, quotes=True, beginTime=datetime, endTime=dateime*)
-===================================================================================
+========
+tickData
+========
+``tickData(*symbol, trades=False, quotes=True, beginTime=datetime, endTime=dateime*)``
 Returns historical tick level quote and trade data for a symbol::
 
     df = at.tickData('TWTR', trades=True, quotes=True)
@@ -89,9 +96,11 @@ Returns historical tick level quote and trade data for a symbol::
 2016-09-28 09:30:00.008000  T       215.83    200  Z            0       0       0       0
 ==========================  ======  ======  =====  ======  ======  ======  ======  ======
 
-=====================
-optionChain(*symbol*)
-=====================
+===========
+optionChain
+===========
+``optionChain(symbol)``
+
 Returns the symbols making up the optionchain for the underlying::
 
     df = at.optionChain('SPXW')
