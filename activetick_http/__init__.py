@@ -19,6 +19,12 @@ class ActiveTick:
 
         self._date_fmt = '%Y%m%d%H%M%S'
 
+    def _date_wrap(self, date):
+
+        # wrapper to allow for np.datetime64 and convert to string
+        ts = pd.to_datetime(str(date))
+        return ts.strftime(self._date_fmt)
+
     def _format_symbols(self, symbols):
         """
         symbols - string (returns unchanged) or list of symbols to concat with + symbols (string, list)
@@ -185,8 +191,8 @@ class ActiveTick:
                 attr_str = 'intradayMinutes={intradayMinutes}&'.format(intradayMinutes=str(intradayMinutes))
             return attr_str
 
-        beginTime_s = datetime.strftime(beginTime, format=self._date_fmt)
-        endTime_s = datetime.strftime(endTime, format=self._date_fmt)
+        beginTime_s = self._date_wrap(beginTime)
+        endTime_s = self._date_wrap(endTime)
 
         cache_key = "AT:BARDATA:{symbol}:{historyType}:{intradayMinutes}:{beginTime}:{endTime}"
         cache_key = cache_key.format(
@@ -300,8 +306,8 @@ class ActiveTick:
         if not trades and not quotes:
             return pd.DataFrame()
 
-        beginTime_s = datetime.strftime(beginTime, format=self._date_fmt)
-        endTime_s = datetime.strftime(endTime, format=self._date_fmt)
+        beginTime_s = self._date_wrap(beginTime)
+        endTime_s = self._date_wrap(endTime)
 
         cache_key = 'AT:TICKDATA:{symbol}:{trades}:{quotes}:{beginTime}:{endTime}'
         cache_key = cache_key.format(
@@ -361,7 +367,7 @@ class ActiveTick:
         df = pd.read_csv(url)
         return df
 
-__version__ = '0.11'
+__version__ = '0.12'
 if __name__ == '__main__':
     print('ActiveTick Python Module, attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.\n'
           'http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx',
