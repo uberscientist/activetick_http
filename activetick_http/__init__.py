@@ -19,6 +19,9 @@ class ActiveTick:
 
         self._date_fmt = '%Y%m%d%H%M%S'
 
+        # Contains generator for stream once requested
+        self.stream_ = None
+
     def _date_wrap(self, date):
 
         # wrapper to allow for np.datetime64 and convert to string
@@ -152,14 +155,15 @@ class ActiveTick:
             return pd.read_csv(StringIO(tick), names=names, index_col='type', dtype=dtype,
                                parse_dates=['datetime'], date_parser=parse_date)
 
-        res = self.r.get('http://{host}:{port}/quoteStream?symbol={symbols}'.format(
+        self.stream_ = self.r.get('http://{host}:{port}/quoteStream?symbol={symbols}'.format(
             host=self.host,
             port=self.port,
             symbols=self._format_symbols(symbols)
         ), stream=True)
-        lines = map(__tickParse, res.iter_lines())
-        first_line = next(lines)
-        return lines
+
+        pandas_stream = map(__tickParse, self.stream_.iter_lines())
+        first_line = next(pandas_stream)
+        return pandas_stream
 
     def barData(self, symbol, historyType='I', intradayMinutes=60,
                 beginTime=datetime(datetime.now().year, datetime.now().month, 1), endTime=datetime.now()):

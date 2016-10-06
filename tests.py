@@ -14,15 +14,22 @@ class TestActiveTick():
         return True
 
     def test_quoteStream(self):
-        print('\nquoteStream:\n', 'No test.')
-        return True
-        stream = at.quoteStream(('NUGT', 'DUST'))
+        print('\nquoteStream:\n')
+        stream = at.quoteStream(('SPY', 'VXX'))
+        i = 0
         for tick in stream:
-            print(tick)
+            if i < 3:
+                i += 1
+                print(tabulate(tick, headers='keys', tablefmt='grid'))
+            else:
+
+                # How to close the quoteStream
+                at.stream_.connection.close()
+                return True
 
     def test_barData(self):
         df = at.barData('INTC', historyType='I', beginTime=datetime(2016, 9, 28)).head()
-        print('\nbarData:\n', tabulate(df, headers='keys', tablefmt='grid'))
+        print('\nbarData:\n', tabulate(df.head(), headers='keys', tablefmt='grid'))
         return True
 
     def test_tickData(self):
@@ -36,9 +43,9 @@ class TestActiveTick():
         df = at.tickData('NUGT', trades=False, quotes=True, beginTime=np.datetime64(beginTime),
                          endTime=np.datetime64(endTime))
 
-        print('\ntickData:\n', tabulate(df, headers='keys', tablefmt='grid'))
+        print('\ntickData:\n', tabulate(df.head(), headers='keys', tablefmt='grid'))
 
     def test_optionChain(self):
-        df = at.optionChain('SPY').head()
-        print('\noptionChain:\n', tabulate(df, headers=[''], tablefmt='grid'))
+        df = at.optionChain('SPY')
+        print('\noptionChain:\n', tabulate(df.head(), headers=[''], tablefmt='grid'))
         return True
