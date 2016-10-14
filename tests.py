@@ -36,12 +36,16 @@ class TestActiveTick():
 
         beginTime = datetime(2016, 9, 28, 9, 30)
         endTime = datetime(2016, 9, 28, 9, 31)
-        # df = at.tickData('GDX', trades=True, quotes=False, beginTime=beginTime,
-        #                  endTime=endTime).head()
+        df = at.tickData('GDX', trades=True, quotes=False, beginTime=beginTime,
+                          endTime=endTime).head()
 
         # np.datetime64 begin and end type should work
         df = at.tickData('NUGT', trades=False, quotes=True, beginTime=np.datetime64(beginTime),
                          endTime=np.datetime64(endTime))
+
+        # Shouldn't crash if there's no data, AT returns a 0
+        df = at.tickData('SPY',  trades=False, quotes=True, beginTime=datetime(2016, 9, 13, 9, 30),
+                         endTime=datetime(2016, 9, 13, 9, 31))
 
         print('\ntickData:\n', tabulate(df.head(), headers='keys', tablefmt='grid'))
 
