@@ -207,7 +207,7 @@ class ActiveTick:
             endTime=endTime_s)
 
         # If the data is cached
-        if self.cache.exists(cache_key):
+        if self.cache and self.cache.exists(cache_key):
             return pd.read_msgpack(self.cache.get(cache_key))
 
         url = 'http://{host}:{port}/barData?symbol={symbol}&historyType={historyType}' \
@@ -232,7 +232,8 @@ class ActiveTick:
                          index_col='datetime', parse_dates=['datetime'], dtype=dtypes)
 
         # Cache the data
-        self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
+        if self.cache:
+            self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
         return df
 
     def tickData(self, symbol, trades=False, quotes=True,
@@ -299,13 +300,18 @@ class ActiveTick:
                 date_col = 1
                 del q_names[1]
                 del t_names[1]
-            df = pd.read_csv(url, header=None,
-                             engine='c',
-                             index_col=date_col,
-                             parse_dates=[date_col],
-                             names=names,
-                             date_parser=date_parser)
-            return df
+            try:
+                df = pd.read_csv(url, header=None,
+                                 engine='c',
+                                 index_col=date_col,
+                                 parse_dates=[date_col],
+                                 names=names,
+                                 date_parser=date_parser)
+                return df
+
+            except IndexError:
+                print('No or malformed data: ', url)
+                return pd.DataFrame()
 
         if not trades and not quotes:
             return pd.DataFrame()
