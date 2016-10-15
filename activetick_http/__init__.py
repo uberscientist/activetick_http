@@ -105,7 +105,7 @@ class ActiveTick:
         df = pd.read_csv(url, header=None, names=names, index_col='symbol')
         return df
 
-    def quoteStream(self, symbols):
+    def quoteStream(self, symbols, timeout=None):
         """
         symbols - string or iter of symbols
 
@@ -114,6 +114,9 @@ class ActiveTick:
         res = at.quoteStream('SPY')
         for quote in res:
             print(quote)
+
+        :param timeout:
+        integer, how many seconds to keep connection open
 
         :return:
         returns lazy iterator see requests iter_lines() that can be looped over to access streaming data
@@ -155,11 +158,13 @@ class ActiveTick:
             return pd.read_csv(StringIO(tick), names=names, index_col='type', dtype=dtype,
                                parse_dates=['datetime'], date_parser=parse_date)
 
-        self.stream_ = self.r.get('http://{host}:{port}/quoteStream?symbol={symbols}'.format(
+        url = 'http://{host}:{port}/quoteStream?symbol={symbols}'.format(
             host=self.host,
             port=self.port,
             symbols=self._format_symbols(symbols)
-        ), stream=True)
+        )
+
+        self.stream_ = self.r.get(url, stream=True, timeout=timeout)
 
         pandas_stream = map(__tickParse, self.stream_.iter_lines())
         first_line = next(pandas_stream)
@@ -237,7 +242,8 @@ class ActiveTick:
         return df
 
     def tickData(self, symbol, trades=False, quotes=True,
-                 beginTime=datetime.now() - timedelta(minutes=15), endTime=datetime.now()):
+                 beginTime=datetime.now() - timedelta(minutes=15),
+                 endTime=datetime.now()):
         """
         Gets tick level data in between a time range, limited to returning 100,000 quotes/trades at a time
         :param symbol:
@@ -246,6 +252,7 @@ class ActiveTick:
         Boolean, whether to return trade ticks
         :param quotes:
         Boolean whether to return quote ticks
+
         :param beginTime:
         datetime beginning of date range
         :param endTime:
@@ -309,7 +316,7 @@ class ActiveTick:
                                  date_parser=date_parser)
                 return df
 
-            except IndexError:
+            except Exception:
                 print('No or malformed data: ', url)
                 return pd.DataFrame()
 
