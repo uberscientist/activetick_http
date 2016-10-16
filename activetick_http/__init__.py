@@ -316,7 +316,8 @@ class ActiveTick:
                                  date_parser=date_parser)
                 return df
 
-            except Exception:
+            except Exception as e:
+                print('caught exception:', e)
                 print('No or malformed data: ', url)
                 return pd.DataFrame()
 
@@ -364,7 +365,8 @@ class ActiveTick:
 
             if trades and quotes:
                 df = __at_request(url, None)
-                df = __get_trades(df).append(__get_quotes(df)).sort_index(axis=0)
+                if not df.empty:
+                    df = __get_trades(df).append(__get_quotes(df)).sort_index(axis=0)
 
         self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
         return df
