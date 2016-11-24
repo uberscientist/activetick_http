@@ -387,10 +387,12 @@ class ActiveTick:
         df = pd.read_csv(url)
         return df
 
-__version__ = '0.12'
-if __name__ == '__main__':
-    print('ActiveTick Python Module, attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.\n'
+__version__ = '0.12.1'
+__url__ = 'https://github.com/uberscientist/activetick_http'
+if __name__ == '__main__'
+    print('ActiveTick Python Module' + __version__ +
+          ', attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.\n'
           'http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx',
-          'Git repo: https://github.com/uberscientist/activetick_http\n',
+          'Git repo:' + __url__,
           'Uses pytest for tests.\n',
           'Has optional (recommended) Redis (http://redis.io) caching built in..', sep='\n')
