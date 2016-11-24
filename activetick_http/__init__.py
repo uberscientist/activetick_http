@@ -389,7 +389,7 @@ class ActiveTick:
 
 __version__ = '0.12.1'
 __url__ = 'https://github.com/uberscientist/activetick_http'
-if __name__ == '__main__'
+if __name__ == '__main__':
     print('ActiveTick Python Module' + __version__ +
           ', attaches to ActiveTick HTTP Proxy, returns Pandas DataFrames.\n'
           'http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx',
