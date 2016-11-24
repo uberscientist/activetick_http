@@ -337,8 +337,8 @@ class ActiveTick:
         )
 
         # Return cached data
-        if self.cache.exists(cache_key):
-            return pd.read_msgpack(self.cache.get(cache_key))
+        if self.cache and self.cache.exists(cache_key):
+                return pd.read_msgpack(self.cache.get(cache_key))
 
         # Retrieve data not found in cache
         else:
@@ -368,7 +368,8 @@ class ActiveTick:
                 if not df.empty:
                     df = __get_trades(df).append(__get_quotes(df)).sort_index(axis=0)
 
-        self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
+        if self.cache:
+            self.cache.set(cache_key, df.to_msgpack(compress='zlib'))
         return df
 
     def optionChain(self, symbol):
@@ -392,4 +393,4 @@ if __name__ == '__main__':
           'http://www.activetick.com/activetick/contents/PersonalServicesDataAPIDownload.aspx',
           'Git repo: https://github.com/uberscientist/activetick_http\n',
           'Uses pytest for tests.\n',
-          'Has optional (recommended) Redis (http://redis.io) caching built in.', sep='\n')
+          'Has optional (recommended) Redis (http://redis.io) caching built in..', sep='\n')
